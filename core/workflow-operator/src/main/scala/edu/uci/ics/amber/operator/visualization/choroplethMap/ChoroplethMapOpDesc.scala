@@ -85,6 +85,7 @@ class ChoroplethMapOpDesc extends PythonOperatorDescriptor {
     assert(locations.nonEmpty && color.nonEmpty)
     s"""
        |        fig = px.choropleth(table, locations="$locations", color="$color", color_continuous_scale=px.colors.sequential.Plasma)
+       |        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
        |""".stripMargin
   }
 
@@ -115,7 +116,6 @@ class ChoroplethMapOpDesc extends PythonOperatorDescriptor {
          |           yield {'html-content': self.render_error("No valid rows left (every row has at least 1 missing value).")}
          |           return
          |        ${createPlotlyFigure()}
-         |        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
          |        html = plotly.io.to_html(fig, include_plotlyjs='cdn', auto_play=False)
          |        yield {'html-content': html}
          |""".stripMargin
