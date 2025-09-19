@@ -72,7 +72,7 @@ class ChoroplethMapOpDesc extends PythonOperatorDescriptor {
   def createPlotlyFigure(): String = {
     assert(locations.nonEmpty && color.nonEmpty)
     s"""
-       |        fig = px.choropleth(table, locations="country", color="2007", color_continuous_scale=px.colors.sequential.Plasma)
+       |        fig = px.choropleth(table, locations="$locations", color="$color", color_continuous_scale=px.colors.sequential.Plasma)
        |""".stripMargin
   }
 
