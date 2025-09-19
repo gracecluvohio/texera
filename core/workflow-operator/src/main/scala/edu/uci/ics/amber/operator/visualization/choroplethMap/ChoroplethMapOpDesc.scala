@@ -32,14 +32,14 @@ class ChoroplethMapOpDesc extends PythonOperatorDescriptor {
 
   @JsonProperty(value = "locations", required = true)
   @JsonSchemaTitle("Locations Column")
-  @JsonPropertyDescription("what column is used to describe the locations")
+  @JsonPropertyDescription("Column used to describe location")
   @AutofillAttributeName
   var locations: String = ""
 
   @JsonProperty(value = "color", required = true)
   @JsonSchemaTitle("Color Column")
   @JsonPropertyDescription(
-    "what column is used to determine intensity of color of the state/country"
+    "Column used to determine intensity of color of the region"
   )
   @AutofillAttributeName
   var color: String = ""
@@ -55,7 +55,7 @@ class ChoroplethMapOpDesc extends PythonOperatorDescriptor {
   override def operatorInfo: OperatorInfo =
     OperatorInfo(
       "Choropleth Map",
-      "a Choropleth Map; higher color intensity indicates a higher statistic for that region",
+      "Visualize data using a Choropleth Map that uses shades of colors to show differences in properties or quantities between regions",
       OperatorGroupConstants.VISUALIZATION_ADVANCED_GROUP,
       inputPorts = List(InputPort()),
       outputPorts = List(OutputPort(mode = OutputMode.SINGLE_SNAPSHOT))
