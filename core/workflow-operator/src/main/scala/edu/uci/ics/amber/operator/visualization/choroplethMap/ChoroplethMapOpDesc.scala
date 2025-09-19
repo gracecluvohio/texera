@@ -44,7 +44,7 @@ class ChoroplethMapOpDesc extends PythonOperatorDescriptor {
 
   @JsonProperty(value = "locations", required = true)
   @JsonSchemaTitle("Locations Column")
-  @JsonPropertyDescription("Column used to describe location")
+  @JsonPropertyDescription("Column used to describe location. Currently only supports countries and needs to be three-letter ISO country code")
   @AutofillAttributeName
   var locations: String = ""
 
