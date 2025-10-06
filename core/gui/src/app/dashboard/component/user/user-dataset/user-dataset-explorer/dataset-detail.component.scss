@@ -51,8 +51,8 @@
   margin-top: 10px;
 }
 
-nz-layout {
-  height: 100%;
+nz-content {
+  border-right: 1px solid #e8e8e8;
 }
 
 html,
@@ -60,12 +60,6 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-}
-
-.sider-resize-line {
-  height: 100%;
-  width: 5px;
-  border-right: 1px solid #e8e8e8;
 }
 
 .sider-resize-handle {
