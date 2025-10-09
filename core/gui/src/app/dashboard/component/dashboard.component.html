@@ -192,8 +192,8 @@
     <span id="git-commit-id">Git hash: {{ gitCommitHash }}</span>
   </nz-sider>
 
-  <div class="page-container">
     <nz-layout
+      class="page-container-layout"
       style="border-left: 1px solid #f0f0f0">
       <div
         [hidden]="!displayNavbar"
@@ -213,5 +213,5 @@
         <router-outlet></router-outlet>
       </nz-content>
     </nz-layout>
-  </div>
+
 </nz-layout>
