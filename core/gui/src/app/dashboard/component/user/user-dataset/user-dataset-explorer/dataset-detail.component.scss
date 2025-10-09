@@ -17,6 +17,21 @@
  * under the License.
  */
 
+.dataset-detail-component {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
+.file-section-layout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
 .create-dataset-version-button {
   display: flex; /* Use flexbox for centering */
   align-items: center; /* Center vertically */
@@ -51,8 +66,9 @@
   margin-top: 10px;
 }
 
-nz-content {
-  border-right: 1px solid #e8e8e8;
+.right-sider {
+  border-left: 1px solid #e8e8e8;
+  overflow-y: auto;
 }
 
 html,
