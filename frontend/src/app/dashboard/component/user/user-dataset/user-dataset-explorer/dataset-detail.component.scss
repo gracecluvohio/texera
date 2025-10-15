@@ -72,6 +72,8 @@ nz-sider {
 .right-sider-scrolling-container {
   height: 100%;
   overflow-y: auto;
+  position: relative;
+  z-index: 0;
 }
 
 .sider-resize-line {
