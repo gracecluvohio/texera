@@ -418,7 +418,10 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
       ];
     });
     points.push(...link_points);
-    regionElement.attr("body/d", line().curve(curveCatmullRomClosed)(concaveman(points, Infinity, 0) as [number, number][]));
+    regionElement.attr(
+      "body/d",
+      line().curve(curveCatmullRomClosed)(concaveman(points, Infinity, 0) as [number, number][])
+    );
   }
 
   private getRegionLinks(ops: joint.dia.Cell[]) {
