@@ -424,9 +424,9 @@ export class WorkflowEditorComponent implements OnInit, AfterViewInit, OnDestroy
     );
   }
 
-  private getRegionLinks(ops: joint.dia.Cell[]) {
+  private getRegionLinks(ops: joint.dia.Cell[]): Set<joint.dia.Link> {
     const ops_set = new Set(ops);
-    const links_set = new Set();
+    const links_set = new Set<joint.dia.Link>();
     for (const op of ops) {
       for (const link of this.paper.model.getConnectedLinks(op)) {
         if (links_set.has(link)) {
