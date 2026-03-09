@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Notify on DDL Change
+name: Automatic email notification on DDL change
 
 on:
   pull_request:
@@ -48,14 +48,14 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 465
           secure: true
-          username: ${{secrets.MAIL_USERNAME}}
-          password: ${{secrets.MAIL_PASSWORD}}
+          username: ${{secrets.NOREPLY_EMAIL_USERNAME}}
+          password: ${{secrets.NOREPLY_EMAIL_PASSWORD}}
           subject: Actions Required After Pulling Latest Update
           to: dev@texera.apache.org
           from: ${{ github.event.pull_request.user.login }}
           body: |
             Hi all,
-            We have merged PR #${{ github.event.pull_request.number }} (${{ github.event.pull_request.html_url }}): ${{github.event.pull_request.title}}. To incorporate the change, please apply ${{ steps.get_sql_file.outputs.sql_file }} to your local Postgres instance and run common/dao/src/main/scala/org/apache/texera/dao/JooqCodeGenerator.scala to generate jooq tables. 
+            We have merged PR #${{ github.event.pull_request.number }} (${{ github.event.pull_request.html_url }}): ${{github.event.pull_request.title}}. To incorporate the change, please apply ${{ steps.get_sql_file.outputs.sql_file }} to your local Postgres instance and run sbt jooqGenerate to generate jooq classes. 
 
             Best,
             ${{ github.event.pull_request.user.login }}
