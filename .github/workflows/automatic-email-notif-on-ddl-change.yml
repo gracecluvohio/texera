@@ -54,11 +54,9 @@ jobs:
           To: dev@texera.apache.org
           Reply-To: dev@texera.apache.org
           Subject: Actions Required After Pulling Latest Update
-          
-          Hi all,
-          
-          We have merged PR #${{ github.event.pull_request.number }} (${{ github.event.pull_request.html_url }}): ${{github.event.pull_request.title}}. To incorporate the change, please apply ${{ steps.get_sql_file.outputs.sql_file }} to your local Postgres instance and run sbt jooqGenerate to generate jooq classes. 
-          
-          Best,
-          ${{ github.event.pull_request.user.login }}
+          Content-Type: text/html
+
+          <p>Hi all,</p>
+          <p>We have merged PR #${{ github.event.pull_request.number }} (<a href="${{ github.event.pull_request.html_url }}">${{ github.event.pull_request.html_url }}</a>): ${{ github.event.pull_request.title }}. To incorporate the change, please apply ${{ steps.get_sql_file.outputs.sql_file }} to your local Postgres instance and run <code>sbt jooqGenerate</code> to generate jooq classes.</p>
+          <p>Best,<br>${{ github.event.pull_request.user.login }}</p>
           EOF
