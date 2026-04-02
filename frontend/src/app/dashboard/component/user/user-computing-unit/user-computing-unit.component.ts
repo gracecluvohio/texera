@@ -24,6 +24,4 @@ import { Component } from "@angular/core";
   templateUrl: "user-computing-unit.component.html",
   styleUrls: ["user-computing-unit.component.scss"],
 })
-export class UserComputingUnitComponent {
-
-}
+export class UserComputingUnitComponent {}
