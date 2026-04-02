@@ -132,9 +132,9 @@ routes.push({
           component: DatasetDetailComponent,
         },
         {
-                path: "unit",
-                component: UserComputingUnitComponent,
-              },
+          path: "unit",
+          component: UserComputingUnitComponent,
+        },
         {
           path: "quota",
           component: UserQuotaComponent,
