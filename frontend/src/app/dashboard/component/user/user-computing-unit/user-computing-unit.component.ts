@@ -20,7 +20,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { ComputingUnitStatusService } from "../../../../workspace/service/computing-unit-status/computing-unit-status.service";
 import { DashboardEntry } from "../../../type/dashboard-entry";
-import { DashboardWorkflowComputingUnit, WorkflowComputingUnitType } from "../../../../workspace/types/workflow-computing-unit";
+import {
+  DashboardWorkflowComputingUnit,
+  WorkflowComputingUnitType,
+} from "../../../../workspace/types/workflow-computing-unit";
 import { extractErrorMessage } from "../../../../common/util/error";
 import { NotificationService } from "../../../../common/service/notification/notification.service";
 import { NzModalService } from "ng-zorro-antd/modal";
@@ -31,7 +34,7 @@ import {
   parseResourceUnit,
   parseResourceNumber,
   findNearestValidStep,
-  unitTypeMessageTemplate
+  unitTypeMessageTemplate,
 } from "../../../../common/util/computing-unit.util";
 
 @UntilDestroy()
@@ -48,7 +51,7 @@ export class UserComputingUnitComponent implements OnInit {
 
   allComputingUnits: DashboardWorkflowComputingUnit[] = [];
 
-   // variables for creating a computing unit
+  // variables for creating a computing unit
   addComputeUnitModalVisible = false;
   newComputingUnitName: string = "";
   selectedMemory: string = "";

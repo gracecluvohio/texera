@@ -35,7 +35,7 @@ import {
   cpuResourceConversion,
   memoryResourceConversion,
   cpuPercentage,
-  memoryPercentage
+  memoryPercentage,
 } from "../../../../../common/util/computing-unit.util";
 
 @UntilDestroy()
@@ -188,17 +188,11 @@ export class UserComputingUnitListItemComponent implements OnInit {
   }
 
   getCpuPercentage(): number {
-    return cpuPercentage(
-      this.getCurrentComputingUnitCpuUsage(),
-      this.getCurrentComputingUnitCpuLimit()
-    );
+    return cpuPercentage(this.getCurrentComputingUnitCpuUsage(), this.getCurrentComputingUnitCpuLimit());
   }
 
   getMemoryPercentage(): number {
-    return memoryPercentage(
-      this.getCurrentComputingUnitMemoryUsage(),
-      this.getCurrentComputingUnitMemoryLimit()
-    );
+    return memoryPercentage(this.getCurrentComputingUnitMemoryUsage(), this.getCurrentComputingUnitMemoryLimit());
   }
 
   getCpuStatus(): "success" | "exception" | "active" | "normal" {

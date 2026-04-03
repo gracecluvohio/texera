@@ -32,7 +32,7 @@ import { MockComputingUnitStatusService } from "../../../../workspace/service/co
 describe("UserComputingUnitComponent", () => {
   let component: UserComputingUnitComponent;
   let fixture: ComponentFixture<UserComputingUnitComponent>;
-  let mockComputingUnitService: jasmine.SpyObj<WorkflowComputingUnitManagingService>
+  let mockComputingUnitService: jasmine.SpyObj<WorkflowComputingUnitManagingService>;
 
   beforeEach(() => {
     mockComputingUnitService = jasmine.createSpyObj<WorkflowComputingUnitManagingService>([
@@ -50,7 +50,7 @@ describe("UserComputingUnitComponent", () => {
         { provide: UserService, useClass: StubUserService },
         { provide: WorkflowComputingUnitManagingService, useValue: mockComputingUnitService },
         { provide: ComputingUnitStatusService, useClass: MockComputingUnitStatusService },
-        ...commonTestProviders
+        ...commonTestProviders,
       ],
       imports: [NzCardModule],
     }).compileComponents();
