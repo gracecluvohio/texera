@@ -104,13 +104,12 @@
       [nzPopoverContent]="metricsTemplate"
       nzPopoverTrigger="hover"
       nzPopoverPlacement="bottom"
-      id="metrics-container-id"
       class="metrics-container">
       <div class="metric-item">
         <span class="metric-label">CPU</span>
         <div class="metric-bar-wrapper">
           <nz-progress
-            id="cpu-progress-bar"
+            class="cpu-progress-bar"
             [nzPercent]="getCpuPercentage()"
             [nzStrokeColor]="'#52c41a'"
             [nzStatus]="getCpuStatus()"
@@ -124,7 +123,7 @@
         <span class="metric-label">Memory</span>
         <div class="metric-bar-wrapper">
           <nz-progress
-            id="memory-progress-bar"
+            class="memory-progress-bar"
             [nzPercent]="getMemoryPercentage()"
             [nzStrokeColor]="'#1890ff'"
             [nzStatus]="getMemoryStatus()"
