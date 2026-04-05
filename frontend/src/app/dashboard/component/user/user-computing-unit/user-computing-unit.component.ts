@@ -93,6 +93,7 @@ export class UserComputingUnitComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.localComputingUnitUri = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}/wsapi`;
     this.newComputingUnitName = "My Computing Unit";
     this.computingUnitService
       .getComputingUnitTypes()
