@@ -91,9 +91,7 @@
         nz-button
         nzType="text"
         title="Delete"
-        (nzOnConfirm)="deleted.emit()"
-        nz-popconfirm
-        nzPopconfirmTitle="Confirm to delete this item.">
+        (click)="deleted.emit()">
         <i
           nz-icon
           nzType="delete"></i>
