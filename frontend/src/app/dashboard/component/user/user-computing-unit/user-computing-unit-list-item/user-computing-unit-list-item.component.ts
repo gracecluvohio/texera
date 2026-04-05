@@ -17,7 +17,16 @@
  * under the License.
  */
 
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+  ElementRef,
+} from "@angular/core";
 import { ComputingUnitStatusService } from "../../../../../workspace/service/computing-unit-status/computing-unit-status.service";
 import { extractErrorMessage } from "../../../../../common/util/error";
 import { NotificationService } from "../../../../../common/service/notification/notification.service";
@@ -29,7 +38,7 @@ import {
 } from "../../../../../workspace/types/workflow-computing-unit";
 import { WorkflowComputingUnitManagingService } from "../../../../../workspace/service/workflow-computing-unit/workflow-computing-unit-managing.service";
 import {
-  buildComputingUnitMetadataTable,
+  ComputingUnitMetadataComponent,
   parseResourceUnit,
   parseResourceNumber,
   cpuResourceConversion,
@@ -49,7 +58,6 @@ export class UserComputingUnitListItemComponent implements OnInit {
   editingNameOfUnit: number | null = null;
   editingUnitName: string = "";
   gpuOptions: string[] = [];
-  @Input() editable = false;
   @Output() deleted = new EventEmitter<void>();
 
   @Input()
@@ -94,6 +102,8 @@ export class UserComputingUnitListItemComponent implements OnInit {
       });
   }
 
+  @ViewChild("unitNameInput") unitNameInputRef?: ElementRef<HTMLInputElement>;
+
   startEditingUnitName(entry: DashboardWorkflowComputingUnit): void {
     if (!entry.isOwner) {
       this.notificationService.error("Only owners can rename computing units");
@@ -108,8 +118,8 @@ export class UserComputingUnitListItemComponent implements OnInit {
     setTimeout(() => {
       const input = document.querySelector(".unit-name-edit-input") as HTMLInputElement;
       if (input) {
-        input.focus();
-        input.select();
+        this.unitNameInputRef?.nativeElement.focus();
+        this.unitNameInputRef?.nativeElement.select();
       }
     }, 0);
   }
@@ -158,7 +168,8 @@ export class UserComputingUnitListItemComponent implements OnInit {
   openComputingUnitMetadataModal(entry: DashboardWorkflowComputingUnit) {
     this.modalService.create({
       nzTitle: "Computing Unit Information",
-      nzContent: buildComputingUnitMetadataTable(entry),
+      nzContent: ComputingUnitMetadataComponent,
+      nzData: entry,
       nzFooter: null,
       nzMaskClosable: true,
       nzWidth: "600px",
