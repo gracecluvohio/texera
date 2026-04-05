@@ -34,7 +34,7 @@ describe("UserComputingUnitComponent", () => {
   let fixture: ComponentFixture<UserComputingUnitComponent>;
   let mockComputingUnitService: jasmine.SpyObj<WorkflowComputingUnitManagingService>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockComputingUnitService = jasmine.createSpyObj<WorkflowComputingUnitManagingService>([
       "getComputingUnitTypes",
       "getComputingUnitLimitOptions",
@@ -42,7 +42,7 @@ describe("UserComputingUnitComponent", () => {
       "createLocalComputingUnit",
     ]);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [UserComputingUnitComponent],
       providers: [
         NzModalService,
