@@ -47,7 +47,6 @@ export class UserComputingUnitComponent implements OnInit {
   public entries: DashboardEntry[] = [];
   public isLogin = this.userService.isLogin();
   public currentUid = this.userService.getCurrentUser()?.uid;
-  @Input() editable = false;
 
   allComputingUnits: DashboardWorkflowComputingUnit[] = [];
 
