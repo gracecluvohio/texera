@@ -17,25 +17,61 @@
  * under the License.
  */
 
+import { Component, inject } from "@angular/core";
+import { NZ_MODAL_DATA } from "ng-zorro-antd/modal";
 import { DashboardWorkflowComputingUnit } from "../../workspace/types/workflow-computing-unit";
 
-export function buildComputingUnitMetadataTable(unit: DashboardWorkflowComputingUnit): string {
-  return `
+@Component({
+  template: `
     <table class="ant-table">
       <tbody>
-        <tr><th style="width: 150px;">Name</th><td>${unit.computingUnit.name}</td></tr>
-        <tr><th>Status</th><td>${unit.status}</td></tr>
-        <tr><th>Type</th><td>${unit.computingUnit.type}</td></tr>
-        <tr><th>CPU Limit</th><td>${unit.computingUnit.resource.cpuLimit}</td></tr>
-        <tr><th>Memory Limit</th><td>${unit.computingUnit.resource.memoryLimit}</td></tr>
-        <tr><th>GPU Limit</th><td>${unit.computingUnit.resource.gpuLimit || "None"}</td></tr>
-        <tr><th>JVM Memory</th><td>${unit.computingUnit.resource.jvmMemorySize}</td></tr>
-        <tr><th>Shared Memory</th><td>${unit.computingUnit.resource.shmSize}</td></tr>
-        <tr><th>Created</th><td>${new Date(unit.computingUnit.creationTime).toLocaleString()}</td></tr>
-        <tr><th>Access</th><td>${unit.isOwner ? "Owner" : unit.accessPrivilege}</td></tr>
+        <tr>
+          <th style="width: 150px;">Name</th>
+          <td>{{ unit.computingUnit.name }}</td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td>{{ unit.status }}</td>
+        </tr>
+        <tr>
+          <th>Type</th>
+          <td>{{ unit.computingUnit.type }}</td>
+        </tr>
+        <tr>
+          <th>CPU Limit</th>
+          <td>{{ unit.computingUnit.resource.cpuLimit }}</td>
+        </tr>
+        <tr>
+          <th>Memory Limit</th>
+          <td>{{ unit.computingUnit.resource.memoryLimit }}</td>
+        </tr>
+        <tr>
+          <th>GPU Limit</th>
+          <td>{{ unit.computingUnit.resource.gpuLimit || "None" }}</td>
+        </tr>
+        <tr>
+          <th>JVM Memory</th>
+          <td>{{ unit.computingUnit.resource.jvmMemorySize }}</td>
+        </tr>
+        <tr>
+          <th>Shared Memory</th>
+          <td>{{ unit.computingUnit.resource.shmSize }}</td>
+        </tr>
+        <tr>
+          <th>Created</th>
+          <td>{{ createdAt }}</td>
+        </tr>
+        <tr>
+          <th>Access</th>
+          <td>{{ unit.isOwner ? "Owner" : unit.accessPrivilege }}</td>
+        </tr>
       </tbody>
     </table>
-  `;
+  `,
+})
+export class ComputingUnitMetadataComponent {
+  readonly unit: DashboardWorkflowComputingUnit = inject(NZ_MODAL_DATA);
+  readonly createdAt = new Date(this.unit.computingUnit.creationTime).toLocaleString();
 }
 
 export function parseResourceUnit(resource: string): string {
