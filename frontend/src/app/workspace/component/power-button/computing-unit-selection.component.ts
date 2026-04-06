@@ -299,56 +299,43 @@ export class ComputingUnitSelectionComponent implements OnInit {
    * Start a new computing unit.
    */
   startComputingUnit(): void {
-    // Validate based on computing unit type
-    if (this.selectedComputingUnitType === "kubernetes") {
-      if (this.newComputingUnitName.trim() == "") {
-        this.notificationService.error("Name of the computing unit cannot be empty");
-        return;
-      }
-
-      this.selectedShmSize = `${this.shmSizeValue}${this.shmSizeUnit}`;
-
-      this.computingUnitService
-        .createKubernetesBasedComputingUnit(
-          this.newComputingUnitName,
-          this.selectedCpu,
-          this.selectedMemory,
-          this.selectedGpu,
-          this.selectedJvmMemorySize,
-          this.selectedShmSize
-        )
-        .pipe(untilDestroyed(this))
-        .subscribe({
-          next: (unit: DashboardWorkflowComputingUnit) => {
-            this.notificationService.success("Successfully created the new Kubernetes compute unit");
-            // Select the newly created unit
-            this.selectComputingUnit(this.workflowId, unit.computingUnit.cuid);
-          },
-          error: (err: unknown) =>
-            this.notificationService.error(`Failed to start Kubernetes computing unit: ${extractErrorMessage(err)}`),
-        });
-    } else if (this.selectedComputingUnitType === "local") {
-      // For local computing units, validate the URI
-      if (!this.localComputingUnitUri || this.localComputingUnitUri.trim() === "") {
-        this.notificationService.error("URI for local computing unit cannot be empty");
-        return;
-      }
-
-      this.computingUnitService
-        .createLocalComputingUnit(this.newComputingUnitName, this.localComputingUnitUri)
-        .pipe(untilDestroyed(this))
-        .subscribe({
-          next: (unit: DashboardWorkflowComputingUnit) => {
-            this.notificationService.success("Successfully created the new local compute unit");
-            // Select the newly created unit
-            this.selectComputingUnit(this.workflowId, unit.computingUnit.cuid);
-          },
-          error: (err: unknown) =>
-            this.notificationService.error(`Failed to start local computing unit: ${extractErrorMessage(err)}`),
-        });
-    } else {
-      this.notificationService.error("Please select a valid computing unit type");
+    if (this.selectedComputingUnitType === "kubernetes" && this.newComputingUnitName.trim() === "") {
+      this.notificationService.error("Name of the computing unit cannot be empty");
+      return;
     }
+
+    if (this.selectedComputingUnitType === "local" && this.localComputingUnitUri.trim() === "") {
+      this.notificationService.error("URI for local computing unit cannot be empty");
+      return;
+    }
+
+    if (!this.selectedComputingUnitType) {
+      this.notificationService.error("Please select a valid computing unit type");
+      return;
+    }
+
+    const request = {
+      type: this.selectedComputingUnitType,
+      name: this.newComputingUnitName,
+      cpu: this.selectedCpu,
+      memory: this.selectedMemory,
+      gpu: this.selectedGpu,
+      jvmMemorySize: this.selectedJvmMemorySize,
+      shmSize: `${this.shmSizeValue}${this.shmSizeUnit}`,
+      localUri: this.localComputingUnitUri,
+    };
+
+    this.computingUnitActionsService
+      .create(request)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (unit: DashboardWorkflowComputingUnit) => {
+          this.notificationService.success("Successfully created the new compute unit");
+          this.selectComputingUnit(this.workflowId, unit.computingUnit.cuid);
+        },
+        error: (err: unknown) =>
+          this.notificationService.error(`Failed to start computing unit: ${extractErrorMessage(err)}`),
+      });
   }
 
   openComputingUnitMetadataModal(unit: DashboardWorkflowComputingUnit) {
