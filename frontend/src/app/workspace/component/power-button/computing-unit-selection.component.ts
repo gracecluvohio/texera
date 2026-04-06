@@ -546,12 +546,12 @@ export class ComputingUnitSelectionComponent implements OnInit {
   }
 
   getCpuPercentage(): number {
-      return cpuPercentage(this.getCurrentComputingUnitCpuUsage(), this.getCurrentComputingUnitCpuLimit());
-    }
+    return cpuPercentage(this.getCurrentComputingUnitCpuUsage(), this.getCurrentComputingUnitCpuLimit());
+  }
 
-    getMemoryPercentage(): number {
-      return memoryPercentage(this.getCurrentComputingUnitMemoryUsage(), this.getCurrentComputingUnitMemoryLimit());
-    }
+  getMemoryPercentage(): number {
+    return memoryPercentage(this.getCurrentComputingUnitMemoryUsage(), this.getCurrentComputingUnitMemoryLimit());
+  }
 
   getCpuStatus(): "success" | "exception" | "active" | "normal" {
     const percentage = this.getCpuPercentage();
