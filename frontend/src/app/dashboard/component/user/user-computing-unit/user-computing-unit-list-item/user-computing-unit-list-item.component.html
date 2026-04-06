@@ -94,9 +94,10 @@
         *ngIf="this.config.env.sharingComputingUnitEnabled"
         [nzTooltipTitle]="'Share computing unit'"
         (click)="onClickOpenShareAccess(entry.computingUnit.cuid); $event.stopPropagation()"
-        aria-label="Share computing unit"
-      >
-        <span nz-icon nzType="share-alt"></span>
+        aria-label="Share computing unit">
+        <span
+          nz-icon
+          nzType="share-alt"></span>
       </button>
       <button
         nz-button

@@ -33,7 +33,7 @@ import { WorkflowExecutionsEntry } from "../../../dashboard/type/workflow-execut
 import { ExecutionState } from "../../types/execute-workflow.interface";
 import { ShareAccessComponent } from "../../../dashboard/component/user/share-access/share-access.component";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
-import { ComputingUnitActionsService } from "../../../dashboard/service/user/computing-unit-actions/computing-unit-actions.service"
+import { ComputingUnitActionsService } from "../../../dashboard/service/user/computing-unit-actions/computing-unit-actions.service";
 
 @UntilDestroy()
 @Component({

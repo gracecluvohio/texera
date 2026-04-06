@@ -47,7 +47,7 @@ import {
   memoryPercentage,
 } from "../../../../../common/util/computing-unit.util";
 import { GuiConfigService } from "../../../../../common/service/gui-config.service";
-import { ComputingUnitActionsService } from "../../../../service/user/computing-unit-actions/computing-unit-actions.service"
+import { ComputingUnitActionsService } from "../../../../service/user/computing-unit-actions/computing-unit-actions.service";
 
 @UntilDestroy()
 @Component({
