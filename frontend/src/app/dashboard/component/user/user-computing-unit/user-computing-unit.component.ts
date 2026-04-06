@@ -147,49 +147,12 @@ export class UserComputingUnitComponent implements OnInit {
   terminateComputingUnit(cuid: number): void {
     const unit = this.allComputingUnits.find(u => u.computingUnit.cuid === cuid);
 
-    if (!unit || !unit.computingUnit.uri) {
+    if (!unit) {
       this.notificationService.error("Invalid computing unit.");
       return;
     }
 
-    const unitName = unit.computingUnit.name;
-    const unitType = unit?.computingUnit.type || "kubernetes"; // fallback
-    const templates = unitTypeMessageTemplate[unitType];
-
-    // Show confirmation modal
-    this.modalService.confirm({
-      nzTitle: templates.terminateTitle,
-      nzContent: templates.terminateWarning
-        ? `
-      <p>Are you sure you want to terminate <strong>${unitName}</strong>?</p>
-      ${templates.terminateWarning}
-    `
-        : `
-      <p>Are you sure you want to disconnect from <strong>${unitName}</strong>?</p>
-    `,
-      nzOkText: unitType === "local" ? "Disconnect" : "Terminate",
-      nzOkType: "primary",
-      nzOnOk: () => {
-        // Use the ComputingUnitStatusService to handle termination
-        // This will properly close the websocket before terminating the unit
-        this.computingUnitStatusService
-          .terminateComputingUnit(cuid)
-          .pipe(untilDestroyed(this))
-          .subscribe({
-            next: (success: boolean) => {
-              if (success) {
-                this.notificationService.success(`Terminated Computing Unit: ${unitName}`);
-              } else {
-                this.notificationService.error("Failed to terminate computing unit");
-              }
-            },
-            error: (err: unknown) => {
-              this.notificationService.error(`Failed to terminate computing unit: ${extractErrorMessage(err)}`);
-            },
-          });
-      },
-      nzCancelText: "Cancel",
-    });
+    this.computingUnitActionsService.confirmAndTerminate(cuid, unit);
   }
 
   startComputingUnit(): void {

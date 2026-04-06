@@ -7,6 +7,10 @@ import {
   DashboardWorkflowComputingUnit,
   WorkflowComputingUnitType,
 } from "../../../../workspace/types/workflow-computing-unit";
+import { NotificationService } from "../../../../common/service/notification/notification.service";
+import { unitTypeMessageTemplate } from "../../../../common/util/computing-unit.util";
+import { ComputingUnitStatusService } from "../../../../workspace/service/computing-unit-status/computing-unit-status.service";
+import { extractErrorMessage } from "../../../../common/util/error";
 
 export interface StartComputingUnitRequest {
   type: WorkflowComputingUnitType;
@@ -25,7 +29,9 @@ export interface StartComputingUnitRequest {
 export class ComputingUnitActionsService {
   constructor(
     private modalService: NzModalService,
-    private computingUnitService: WorkflowComputingUnitManagingService
+    private computingUnitService: WorkflowComputingUnitManagingService,
+    private notificationService: NotificationService,
+    private computingUnitStatusService: ComputingUnitStatusService
   ) {}
 
   openShareAccessModal(cuid: number, inWorkspace: boolean = true): void {
@@ -61,5 +67,48 @@ export class ComputingUnitActionsService {
     }
 
     throw new Error("Unsupported computing unit type");
+  }
+
+  confirmAndTerminate(cuid: number, unit: DashboardWorkflowComputingUnit): void {
+    if (!unit.computingUnit.uri) {
+      this.notificationService.error("Invalid computing unit.");
+      return;
+    }
+
+    const unitName = unit.computingUnit.name;
+    const unitType = unit?.computingUnit.type || "kubernetes"; // fallback
+    const templates = unitTypeMessageTemplate[unitType];
+
+    // Show confirmation modal
+    this.modalService.confirm({
+      nzTitle: templates.terminateTitle,
+      nzContent: templates.terminateWarning
+        ? `
+      <p>Are you sure you want to terminate <strong>${unitName}</strong>?</p>
+      ${templates.terminateWarning}
+    `
+        : `
+      <p>Are you sure you want to disconnect from <strong>${unitName}</strong>?</p>
+    `,
+      nzOkText: unitType === "local" ? "Disconnect" : "Terminate",
+      nzOkType: "primary",
+      nzOnOk: () => {
+        // Use the ComputingUnitStatusService to handle termination
+        // This will properly close the websocket before terminating the unit
+        this.computingUnitStatusService.terminateComputingUnit(cuid).subscribe({
+          next: (success: boolean) => {
+            if (success) {
+              this.notificationService.success(`Terminated Computing Unit: ${unitName}`);
+            } else {
+              this.notificationService.error("Failed to terminate computing unit");
+            }
+          },
+          error: (err: unknown) => {
+            this.notificationService.error(`Failed to terminate computing unit: ${extractErrorMessage(err)}`);
+          },
+        });
+      },
+      nzCancelText: "Cancel",
+    });
   }
 }
