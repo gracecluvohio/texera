@@ -33,6 +33,7 @@ import { WorkflowExecutionsEntry } from "../../../dashboard/type/workflow-execut
 import { ExecutionState } from "../../types/execute-workflow.interface";
 import { ShareAccessComponent } from "../../../dashboard/component/user/share-access/share-access.component";
 import { GuiConfigService } from "../../../common/service/gui-config.service";
+import { ComputingUnitActionsService } from "../../../dashboard/service/user/computing-unit-actions/computing-unit-actions.service"
 
 @UntilDestroy()
 @Component({
@@ -86,7 +87,8 @@ export class ComputingUnitSelectionComponent implements OnInit {
     private computingUnitStatusService: ComputingUnitStatusService,
     private workflowExecutionsService: WorkflowExecutionsService,
     private modalService: NzModalService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private computingUnitActionsService: ComputingUnitActionsService
   ) {}
 
   ngOnInit(): void {
@@ -879,19 +881,7 @@ export class ComputingUnitSelectionComponent implements OnInit {
   }
 
   public async onClickOpenShareAccess(cuid: number): Promise<void> {
-    this.modalService.create({
-      nzContent: ShareAccessComponent,
-      nzData: {
-        writeAccess: true,
-        type: "computing-unit",
-        id: cuid,
-        inWorkspace: true,
-      },
-      nzFooter: null,
-      nzTitle: "Share this computing unit with others",
-      nzCentered: true,
-      nzWidth: "800px",
-    });
+    this.computingUnitActionsService.openShareAccessModal(cuid, true);
   }
 
   onDropdownVisibilityChange(visible: boolean): void {

@@ -46,6 +46,8 @@ import {
   cpuPercentage,
   memoryPercentage,
 } from "../../../../../common/util/computing-unit.util";
+import { GuiConfigService } from "../../../../../common/service/gui-config.service";
+import { ComputingUnitActionsService } from "../../../../service/user/computing-unit-actions/computing-unit-actions.service"
 
 @UntilDestroy()
 @Component({
@@ -86,7 +88,9 @@ export class UserComputingUnitListItemComponent implements OnInit {
     private modalService: NzModalService,
     private notificationService: NotificationService,
     private computingUnitService: WorkflowComputingUnitManagingService,
-    private computingUnitStatusService: ComputingUnitStatusService
+    private computingUnitStatusService: ComputingUnitStatusService,
+    private computingUnitActionsService: ComputingUnitActionsService,
+    protected config: GuiConfigService
   ) {}
 
   ngOnInit(): void {
@@ -326,5 +330,9 @@ export class UserComputingUnitListItemComponent implements OnInit {
     } else {
       return new Date(timestamp).toLocaleDateString();
     }
+  }
+
+  public async onClickOpenShareAccess(cuid: number): Promise<void> {
+    this.computingUnitActionsService.openShareAccessModal(cuid, false);
   }
 }

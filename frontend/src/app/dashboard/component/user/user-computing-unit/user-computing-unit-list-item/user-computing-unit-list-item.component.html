@@ -90,6 +90,17 @@
       <button
         nz-button
         nzType="text"
+        nz-tooltip
+        *ngIf="this.config.env.sharingComputingUnitEnabled"
+        [nzTooltipTitle]="'Share computing unit'"
+        (click)="onClickOpenShareAccess(entry.computingUnit.cuid); $event.stopPropagation()"
+        aria-label="Share computing unit"
+      >
+        <span nz-icon nzType="share-alt"></span>
+      </button>
+      <button
+        nz-button
+        nzType="text"
         title="Delete"
         (click)="deleted.emit()">
         <i
