@@ -44,6 +44,14 @@ import {
   memoryResourceConversion,
   cpuPercentage,
   memoryPercentage,
+  validateName,
+  getComputingUnitBadgeColor,
+  getComputingUnitStatusTooltip,
+  getComputingUnitCpuStatus,
+  getComputingUnitMemoryStatus,
+  getComputingUnitCpuLimitUnit,
+  isComputingUnitShmTooLarge,
+  getJvmMemorySliderConfig,
 } from "../../../common/util/computing-unit.util";
 
 @UntilDestroy()
@@ -299,12 +307,7 @@ export class ComputingUnitSelectionComponent implements OnInit {
   }
 
   isShmTooLarge(): boolean {
-    const total = parseResourceNumber(this.selectedMemory);
-    const unit = parseResourceUnit(this.selectedMemory);
-    const memoryInMi = unit === "Gi" ? total * 1024 : total;
-    const shmInMi = this.shmSizeUnit === "Gi" ? this.shmSizeValue * 1024 : this.shmSizeValue;
-
-    return shmInMi > memoryInMi;
+    return isComputingUnitShmTooLarge(this.selectedMemory, this.shmSizeValue, this.shmSizeUnit);
   }
 
   /**
@@ -405,15 +408,10 @@ export class ComputingUnitSelectionComponent implements OnInit {
   confirmUpdateUnitName(cuid: number, newName: string): void {
     const trimmedName = newName.trim();
 
-    if (!trimmedName) {
-      this.notificationService.error("Computing unit name cannot be empty");
-      this.editingNameOfUnit = null;
-      return;
-    }
-
-    if (trimmedName.length > 128) {
-      this.notificationService.error("Computing unit name cannot exceed 128 characters");
-      this.editingNameOfUnit = null;
+    const validationError = validateName(trimmedName);
+    if (validationError) {
+      this.notificationService.error(validationError);
+      this.cancelEditingUnitName();
       return;
     }
 
@@ -485,14 +483,7 @@ export class ComputingUnitSelectionComponent implements OnInit {
    * Returns the badge color based on computing unit status
    */
   getBadgeColor(status: string): string {
-    switch (status) {
-      case "Running":
-        return "green";
-      case "Pending":
-        return "gold";
-      default:
-        return "red";
-    }
+    return getComputingUnitBadgeColor(status);
   }
 
   getCpuLimit(): number {
@@ -512,11 +503,7 @@ export class ComputingUnitSelectionComponent implements OnInit {
   }
 
   getCpuLimitUnit(): string {
-    const unit = parseResourceUnit(this.getCurrentComputingUnitCpuLimit());
-    if (unit === "") {
-      return "CPU";
-    }
-    return unit;
+    return getComputingUnitCpuLimitUnit(parseResourceUnit(this.getCurrentComputingUnitCpuLimit()));
   }
 
   getMemoryLimit(): number {
@@ -554,17 +541,11 @@ export class ComputingUnitSelectionComponent implements OnInit {
   }
 
   getCpuStatus(): "success" | "exception" | "active" | "normal" {
-    const percentage = this.getCpuPercentage();
-    if (percentage > 90) return "exception";
-    if (percentage > 50) return "normal";
-    return "success";
+    return getComputingUnitCpuStatus(this.getCpuPercentage());
   }
 
   getMemoryStatus(): "success" | "exception" | "active" | "normal" {
-    const percentage = this.getMemoryPercentage();
-    if (percentage > 90) return "exception";
-    if (percentage > 50) return "normal";
-    return "success";
+    return getComputingUnitMemoryStatus(this.getMemoryPercentage());
   }
 
   getCpuUnit(): string {
@@ -579,14 +560,7 @@ export class ComputingUnitSelectionComponent implements OnInit {
    * Returns a descriptive tooltip for a specific unit's status
    */
   getUnitStatusTooltip(unit: DashboardWorkflowComputingUnit): string {
-    switch (unit.status) {
-      case "Running":
-        return "Ready to use";
-      case "Pending":
-        return "Computing unit is starting up";
-      default:
-        return unit.status;
-    }
+    return getComputingUnitStatusTooltip(unit);
   }
 
   // Called when the component initializes
@@ -610,72 +584,14 @@ export class ComputingUnitSelectionComponent implements OnInit {
 
   // Completely reset the JVM memory slider based on the selected CU memory
   resetJvmMemorySlider(): void {
-    // Parse memory limit to determine max JVM memory
-    const memoryValue = parseResourceNumber(this.selectedMemory);
-    const memoryUnit = parseResourceUnit(this.selectedMemory);
+    const config = getJvmMemorySliderConfig(this.selectedMemory);
 
-    // Set max JVM memory to the total memory selected (in GB)
-    let cuMemoryInGb = 1; // Default to 1GB
-    if (memoryUnit === "Gi") {
-      cuMemoryInGb = memoryValue;
-    } else if (memoryUnit === "Mi") {
-      cuMemoryInGb = Math.max(1, Math.floor(memoryValue / 1024));
-    }
-
-    this.jvmMemoryMax = cuMemoryInGb;
-
-    // Special cases for smaller memory sizes (1-3GB)
-    if (cuMemoryInGb <= 3) {
-      // Don't show slider for small memory sizes
-      this.showJvmMemorySlider = false;
-
-      // Set JVM memory size to 1GB when CU memory is 1GB, otherwise set to 2GB
-      if (cuMemoryInGb === 1) {
-        this.jvmMemorySliderValue = 1;
-        this.selectedJvmMemorySize = "1G";
-      } else {
-        // For 2-3GB instances, use 2GB for JVM
-        this.jvmMemorySliderValue = 2;
-        this.selectedJvmMemorySize = "2G";
-      }
-
-      // Still calculate steps for completeness
-      this.jvmMemorySteps = [];
-      let value = 1;
-      while (value <= this.jvmMemoryMax) {
-        this.jvmMemorySteps.push(value);
-        value = value * 2;
-      }
-
-      // Update marks
-      this.jvmMemoryMarks = {};
-      this.jvmMemorySteps.forEach(step => {
-        this.jvmMemoryMarks[step] = `${step}G`;
-      });
-
-      return;
-    }
-
-    // For larger memory sizes (4GB+), show the slider
-    this.showJvmMemorySlider = true;
-
-    // Calculate binary steps (2,4,8,...) starting from 2GB
-    this.jvmMemorySteps = [];
-    let value = 2; // Start from 2GB for larger instances
-    while (value <= this.jvmMemoryMax) {
-      this.jvmMemorySteps.push(value);
-      value = value * 2;
-    }
-
-    // Update slider marks
-    this.jvmMemoryMarks = {};
-    this.jvmMemorySteps.forEach(step => {
-      this.jvmMemoryMarks[step] = `${step}G`;
-    });
-
-    // Always default to 2GB for larger memory sizes
-    this.jvmMemorySliderValue = 2;
-    this.selectedJvmMemorySize = "2G";
+    this.jvmMemoryMax = config.jvmMemoryMax;
+    this.showJvmMemorySlider = config.showJvmMemorySlider;
+    this.jvmMemorySteps = config.jvmMemorySteps;
+    this.jvmMemoryMarks = config.jvmMemoryMarks;
+    this.jvmMemorySliderValue = config.jvmMemorySliderValue;
+    this.selectedJvmMemorySize = config.selectedJvmMemorySize;
   }
 
   // Listen for memory selection changes

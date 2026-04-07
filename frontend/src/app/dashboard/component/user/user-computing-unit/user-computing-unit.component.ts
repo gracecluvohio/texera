@@ -35,6 +35,8 @@ import {
   parseResourceNumber,
   findNearestValidStep,
   unitTypeMessageTemplate,
+  isComputingUnitShmTooLarge,
+  getJvmMemorySliderConfig,
 } from "../../../../common/util/computing-unit.util";
 import { ComputingUnitActionsService } from "../../../service/user/computing-unit-actions/computing-unit-actions.service";
 
@@ -214,12 +216,7 @@ export class UserComputingUnitComponent implements OnInit {
   }
 
   isShmTooLarge(): boolean {
-    const total = parseResourceNumber(this.selectedMemory);
-    const unit = parseResourceUnit(this.selectedMemory);
-    const memoryInMi = unit === "Gi" ? total * 1024 : total;
-    const shmInMi = this.shmSizeUnit === "Gi" ? this.shmSizeValue * 1024 : this.shmSizeValue;
-
-    return shmInMi > memoryInMi;
+    return isComputingUnitShmTooLarge(this.selectedMemory, this.shmSizeValue, this.shmSizeUnit);
   }
 
   updateJvmMemorySlider(): void {
@@ -241,72 +238,14 @@ export class UserComputingUnitComponent implements OnInit {
 
   // Completely reset the JVM memory slider based on the selected CU memory
   resetJvmMemorySlider(): void {
-    // Parse memory limit to determine max JVM memory
-    const memoryValue = parseResourceNumber(this.selectedMemory);
-    const memoryUnit = parseResourceUnit(this.selectedMemory);
+    const config = getJvmMemorySliderConfig(this.selectedMemory);
 
-    // Set max JVM memory to the total memory selected (in GB)
-    let cuMemoryInGb = 1; // Default to 1GB
-    if (memoryUnit === "Gi") {
-      cuMemoryInGb = memoryValue;
-    } else if (memoryUnit === "Mi") {
-      cuMemoryInGb = Math.max(1, Math.floor(memoryValue / 1024));
-    }
-
-    this.jvmMemoryMax = cuMemoryInGb;
-
-    // Special cases for smaller memory sizes (1-3GB)
-    if (cuMemoryInGb <= 3) {
-      // Don't show slider for small memory sizes
-      this.showJvmMemorySlider = false;
-
-      // Set JVM memory size to 1GB when CU memory is 1GB, otherwise set to 2GB
-      if (cuMemoryInGb === 1) {
-        this.jvmMemorySliderValue = 1;
-        this.selectedJvmMemorySize = "1G";
-      } else {
-        // For 2-3GB instances, use 2GB for JVM
-        this.jvmMemorySliderValue = 2;
-        this.selectedJvmMemorySize = "2G";
-      }
-
-      // Still calculate steps for completeness
-      this.jvmMemorySteps = [];
-      let value = 1;
-      while (value <= this.jvmMemoryMax) {
-        this.jvmMemorySteps.push(value);
-        value = value * 2;
-      }
-
-      // Update marks
-      this.jvmMemoryMarks = {};
-      this.jvmMemorySteps.forEach(step => {
-        this.jvmMemoryMarks[step] = `${step}G`;
-      });
-
-      return;
-    }
-
-    // For larger memory sizes (4GB+), show the slider
-    this.showJvmMemorySlider = true;
-
-    // Calculate binary steps (2,4,8,...) starting from 2GB
-    this.jvmMemorySteps = [];
-    let value = 2; // Start from 2GB for larger instances
-    while (value <= this.jvmMemoryMax) {
-      this.jvmMemorySteps.push(value);
-      value = value * 2;
-    }
-
-    // Update slider marks
-    this.jvmMemoryMarks = {};
-    this.jvmMemorySteps.forEach(step => {
-      this.jvmMemoryMarks[step] = `${step}G`;
-    });
-
-    // Always default to 2GB for larger memory sizes
-    this.jvmMemorySliderValue = 2;
-    this.selectedJvmMemorySize = "2G";
+    this.jvmMemoryMax = config.jvmMemoryMax;
+    this.showJvmMemorySlider = config.showJvmMemorySlider;
+    this.jvmMemorySteps = config.jvmMemorySteps;
+    this.jvmMemoryMarks = config.jvmMemoryMarks;
+    this.jvmMemorySliderValue = config.jvmMemorySliderValue;
+    this.selectedJvmMemorySize = config.selectedJvmMemorySize;
   }
 
   onMemorySelectionChange(): void {

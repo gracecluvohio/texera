@@ -45,6 +45,12 @@ import {
   memoryResourceConversion,
   cpuPercentage,
   memoryPercentage,
+  validateName,
+  getComputingUnitBadgeColor,
+  getComputingUnitStatusTooltip,
+  getComputingUnitCpuStatus,
+  getComputingUnitMemoryStatus,
+  getComputingUnitCpuLimitUnit,
 } from "../../../../../common/util/computing-unit.util";
 import { GuiConfigService } from "../../../../../common/service/gui-config.service";
 import { ComputingUnitActionsService } from "../../../../service/user/computing-unit-actions/computing-unit-actions.service";
@@ -131,15 +137,10 @@ export class UserComputingUnitListItemComponent implements OnInit {
   confirmUpdateUnitName(cuid: number, newName: string): void {
     const trimmedName = newName.trim();
 
-    if (!trimmedName) {
-      this.notificationService.error("Computing unit name cannot be empty");
-      this.editingNameOfUnit = null;
-      return;
-    }
-
-    if (trimmedName.length > 128) {
-      this.notificationService.error("Computing unit name cannot exceed 128 characters");
-      this.editingNameOfUnit = null;
+    const validationError = validateName(trimmedName);
+    if (validationError) {
+      this.notificationService.error(validationError);
+      this.cancelEditingUnitName();
       return;
     }
 
@@ -148,6 +149,7 @@ export class UserComputingUnitListItemComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: () => {
+          this.notificationService.success("Successfully renamed computing unit");
           if (this.entry.computingUnit.cuid === cuid) {
             this.entry.computingUnit.name = trimmedName;
           }
@@ -181,25 +183,11 @@ export class UserComputingUnitListItemComponent implements OnInit {
   }
 
   getBadgeColor(status: string): string {
-    switch (status) {
-      case "Running":
-        return "green";
-      case "Pending":
-        return "gold";
-      default:
-        return "red";
-    }
+    return getComputingUnitBadgeColor(status);
   }
 
   getUnitStatusTooltip(entry: DashboardWorkflowComputingUnit): string {
-    switch (entry.status) {
-      case "Running":
-        return "Ready to use";
-      case "Pending":
-        return "Computing unit is starting up";
-      default:
-        return entry.status;
-    }
+    return getComputingUnitStatusTooltip(entry);
   }
 
   getCpuPercentage(): number {
@@ -211,17 +199,11 @@ export class UserComputingUnitListItemComponent implements OnInit {
   }
 
   getCpuStatus(): "success" | "exception" | "active" | "normal" {
-    const percentage = this.getCpuPercentage();
-    if (percentage > 90) return "exception";
-    if (percentage > 50) return "normal";
-    return "success";
+    return getComputingUnitCpuStatus(this.getCpuPercentage());
   }
 
   getMemoryStatus(): "success" | "exception" | "active" | "normal" {
-    const percentage = this.getMemoryPercentage();
-    if (percentage > 90) return "exception";
-    if (percentage > 50) return "normal";
-    return "success";
+    return getComputingUnitMemoryStatus(this.getMemoryPercentage());
   }
 
   getCurrentComputingUnitCpuUsage(): string {
@@ -269,11 +251,7 @@ export class UserComputingUnitListItemComponent implements OnInit {
   }
 
   getCpuLimitUnit(): string {
-    const unit = parseResourceUnit(this.getCurrentComputingUnitCpuLimit());
-    if (unit === "") {
-      return "CPU";
-    }
-    return unit;
+    return getComputingUnitCpuLimitUnit(parseResourceUnit(this.getCurrentComputingUnitCpuLimit()));
   }
 
   getMemoryLimit(): number {

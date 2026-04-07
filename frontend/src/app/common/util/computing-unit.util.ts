@@ -196,6 +196,138 @@ export function findNearestValidStep(value: number, jvmMemorySteps: number[]): n
   });
 }
 
+export function validateName(trimmedName: string): string | null {
+  if (!trimmedName) return "Computing unit name cannot be empty";
+  if (trimmedName.length > 128) return "Computing unit name cannot exceed 128 characters";
+  return null;
+}
+
+export function getComputingUnitBadgeColor(status: string): string {
+  switch (status) {
+    case "Running":
+      return "green";
+    case "Pending":
+      return "gold";
+    default:
+      return "red";
+  }
+}
+
+export function getComputingUnitStatusTooltip(entry: DashboardWorkflowComputingUnit): string {
+  switch (entry.status) {
+    case "Running":
+      return "Ready to use";
+    case "Pending":
+      return "Computing unit is starting up";
+    default:
+      return entry.status;
+  }
+}
+
+export function getComputingUnitCpuStatus(percentage: number): "success" | "exception" | "active" | "normal" {
+  if (percentage > 90) return "exception";
+  if (percentage > 50) return "normal";
+  return "success";
+}
+
+export function getComputingUnitMemoryStatus(percentage: number): "success" | "exception" | "active" | "normal" {
+  if (percentage > 90) return "exception";
+  if (percentage > 50) return "normal";
+  return "success";
+}
+
+export function getComputingUnitCpuLimitUnit(unit: string) {
+  if (unit === "") {
+    return "CPU";
+  }
+  return unit;
+}
+
+export function isComputingUnitShmTooLarge(
+  selectedMemory: string,
+  shmSizeValue: number,
+  shmSizeUnit: "Mi" | "Gi"
+): boolean {
+  const total = parseResourceNumber(selectedMemory);
+  const unit = parseResourceUnit(selectedMemory);
+  const memoryInMi = unit === "Gi" ? total * 1024 : total;
+  const shmInMi = shmSizeUnit === "Gi" ? shmSizeValue * 1024 : shmSizeValue;
+
+  return shmInMi > memoryInMi;
+}
+
+function memoryToGb(selectedMemory: string): number {
+  const memoryValue = parseResourceNumber(selectedMemory);
+  const memoryUnit = parseResourceUnit(selectedMemory);
+
+  if (memoryUnit === "Gi") {
+    return memoryValue;
+  }
+
+  if (memoryUnit === "Mi") {
+    return Math.max(1, Math.floor(memoryValue / 1024));
+  }
+
+  return 1;
+}
+
+function buildJvmMemorySteps(maxGb: number, start: number): number[] {
+  const steps: number[] = [];
+  let value = start;
+
+  while (value <= maxGb) {
+    steps.push(value);
+    value *= 2;
+  }
+
+  return steps;
+}
+
+function buildJvmMemoryMarks(steps: number[]): Record<number, string> {
+  return steps.reduce<Record<number, string>>((marks, step) => {
+    marks[step] = `${step}G`;
+    return marks;
+  }, {});
+}
+
+export function getJvmMemorySliderConfig(selectedMemory: string): JvmMemorySliderConfig {
+  const cuMemoryInGb = memoryToGb(selectedMemory);
+
+  if (cuMemoryInGb <= 3) {
+    const defaultValue = cuMemoryInGb === 1 ? 1 : 2;
+    const steps = buildJvmMemorySteps(cuMemoryInGb, 1);
+
+    return {
+      jvmMemoryMax: cuMemoryInGb,
+      showJvmMemorySlider: false,
+      jvmMemorySteps: steps,
+      jvmMemoryMarks: buildJvmMemoryMarks(steps),
+      jvmMemorySliderValue: defaultValue,
+      selectedJvmMemorySize: `${defaultValue}G`,
+    };
+  }
+
+  const steps = buildJvmMemorySteps(cuMemoryInGb, 2);
+
+  return {
+    jvmMemoryMax: cuMemoryInGb,
+    showJvmMemorySlider: true,
+    jvmMemorySteps: steps,
+    jvmMemoryMarks: buildJvmMemoryMarks(steps),
+    jvmMemorySliderValue: 2,
+    selectedJvmMemorySize: "2G",
+  };
+}
+
+interface JvmMemorySliderConfig {
+  jvmMemoryMax: number;
+  showJvmMemorySlider: boolean;
+  jvmMemorySteps: number[];
+  jvmMemoryMarks: Record<number, string>;
+  jvmMemorySliderValue: number;
+  selectedJvmMemorySize: string;
+}
+
 export const unitTypeMessageTemplate = {
   local: {
     createTitle: "Connect to a Local Computing Unit",
