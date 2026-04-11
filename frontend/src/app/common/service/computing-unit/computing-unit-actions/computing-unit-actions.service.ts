@@ -22,10 +22,7 @@ import { Observable } from "rxjs";
 import { NzModalService } from "ng-zorro-antd/modal";
 import { ShareAccessComponent } from "../../../../dashboard/component/user/share-access/share-access.component";
 import { WorkflowComputingUnitManagingService } from "../computing-unit-managing/workflow-computing-unit-managing.service";
-import {
-  DashboardWorkflowComputingUnit,
-  WorkflowComputingUnitType,
-} from "../../../type/workflow-computing-unit";
+import { DashboardWorkflowComputingUnit, WorkflowComputingUnitType } from "../../../type/workflow-computing-unit";
 import { NotificationService } from "../../notification/notification.service";
 import { unitTypeMessageTemplate } from "../../../util/computing-unit.util";
 import { ComputingUnitStatusService } from "../computing-unit-status/computing-unit-status.service";

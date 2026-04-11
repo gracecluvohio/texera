@@ -20,7 +20,10 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { take } from "rxjs/operators";
 import { WorkflowComputingUnitManagingService } from "../../../common/service/computing-unit/computing-unit-managing/workflow-computing-unit-managing.service";
-import { DashboardWorkflowComputingUnit, WorkflowComputingUnitType } from "../../../common/type/workflow-computing-unit";
+import {
+  DashboardWorkflowComputingUnit,
+  WorkflowComputingUnitType,
+} from "../../../common/type/workflow-computing-unit";
 import { NotificationService } from "../../../common/service/notification/notification.service";
 import { DEFAULT_WORKFLOW, WorkflowActionService } from "../../service/workflow-graph/model/workflow-action.service";
 import { isDefined } from "../../../common/util/predicate";
