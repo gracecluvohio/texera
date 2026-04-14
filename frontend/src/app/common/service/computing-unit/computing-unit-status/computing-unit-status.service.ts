@@ -21,7 +21,7 @@ import { Injectable, OnDestroy } from "@angular/core";
 import { BehaviorSubject, interval, Observable, of, Subject, Subscription } from "rxjs";
 import { catchError, distinctUntilChanged, filter, map, switchMap, take, tap } from "rxjs/operators";
 import { DashboardWorkflowComputingUnit } from "../../../type/workflow-computing-unit";
-import { WorkflowComputingUnitManagingService } from "../computing-unit-managing/workflow-computing-unit-managing.service";
+import { WorkflowComputingUnitManagingService } from "../workflow-computing-unit/workflow-computing-unit-managing.service";
 import { WorkflowWebsocketService } from "../../../../workspace/service/workflow-websocket/workflow-websocket.service";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { ComputingUnitState } from "../../../type/computing-unit-connection.interface";

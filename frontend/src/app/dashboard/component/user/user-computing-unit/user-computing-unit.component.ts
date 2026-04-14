@@ -29,7 +29,7 @@ import { NotificationService } from "../../../../common/service/notification/not
 import { NzModalService } from "ng-zorro-antd/modal";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { UserService } from "../../../../common/service/user/user.service";
-import { WorkflowComputingUnitManagingService } from "../../../../common/service/computing-unit/computing-unit-managing/workflow-computing-unit-managing.service";
+import { WorkflowComputingUnitManagingService } from "../../../../common/service/computing-unit/workflow-computing-unit/workflow-computing-unit-managing.service";
 import {
   parseResourceUnit,
   parseResourceNumber,

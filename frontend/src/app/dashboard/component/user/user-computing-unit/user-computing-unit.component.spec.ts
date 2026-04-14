@@ -25,7 +25,7 @@ import { HttpClient } from "@angular/common/http";
 import { UserService } from "../../../../common/service/user/user.service";
 import { StubUserService } from "../../../../common/service/user/stub-user.service";
 import { commonTestProviders } from "../../../../common/testing/test-utils";
-import { WorkflowComputingUnitManagingService } from "../../../../common/service/computing-unit/computing-unit-managing/workflow-computing-unit-managing.service";
+import { WorkflowComputingUnitManagingService } from "../../../../common/service/computing-unit/workflow-computing-unit/workflow-computing-unit-managing.service";
 import { ComputingUnitStatusService } from "../../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
 import { MockComputingUnitStatusService } from "../../../../common/service/computing-unit/computing-unit-status/mock-computing-unit-status.service";
 

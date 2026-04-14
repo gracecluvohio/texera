@@ -36,7 +36,7 @@ import {
   DashboardWorkflowComputingUnit,
   WorkflowComputingUnit,
 } from "../../../../../common/type/workflow-computing-unit";
-import { WorkflowComputingUnitManagingService } from "../../../../../common/service/computing-unit/computing-unit-managing/workflow-computing-unit-managing.service";
+import { WorkflowComputingUnitManagingService } from "../../../../../common/service/computing-unit/workflow-computing-unit/workflow-computing-unit-managing.service";
 import {
   ComputingUnitMetadataComponent,
   parseResourceUnit,
