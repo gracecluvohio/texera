@@ -22,4 +22,6 @@ services:
     volumes:
       - .:/liquibase/sql
       - ./changelog.xml:/liquibase/changelog.xml
-    command: --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=username --password=password --changeLogFile=changelog.xml update
+    # If you specified a different postgres username and password in storage.conf, make sure to change it here too
+    # --username=[your postgres username] --password=[your postgres password]
+    command: --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml update
