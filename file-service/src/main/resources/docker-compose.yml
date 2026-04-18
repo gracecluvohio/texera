@@ -88,13 +88,6 @@ services:
         echo ""
         wait
 
-  liquibase:
-    image: liquibase/liquibase:4.29
-    volumes:
-      - ../../../../sql:/liquibase/sql
-      - ./changelog.xml:/liquibase/changelog.xml
-    command: --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml update
-
 networks:
   default:
     name: texera-lakefs
