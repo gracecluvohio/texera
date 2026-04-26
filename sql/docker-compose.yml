@@ -25,3 +25,17 @@ services:
     # NOTE: The username/password below must match your postgres settings in storage.conf. Update them here if you changed them.
     # Format: --username=<your-username> --password=<your-password>
     command: --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml update
+
+  codegen:
+    image: sbtscala/scala-sbt:eclipse-temurin-17.0.15_6_1.12.9_2.13.18
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    working_dir: /texera
+    volumes:
+      - ${PWD}/..:/texera
+      - ~/.ivy2:/root/.ivy2
+      - ~/.sbt:/root/.sbt
+    environment:
+      STORAGE_JDBC_URL: "jdbc:postgresql://host.docker.internal:5432/texera_db?currentSchema=texera_db,public"
+    command: sbt jooqGenerate
