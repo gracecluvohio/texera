@@ -17,8 +17,13 @@
  * under the License.
  */
 
-package org.apache.texera.amber.engine.common.amberexception
+// No-op replacement for the LGPL-2.1 `jschardet` package, which is
+// ASF Category X. Redirected here via `resolutions` in
+// frontend/package.json. The upstream call site lives in
+// @codingame/monaco-vscode-api's encoding service and is only reached
+// when opening binary files through Monaco, which Texera never does.
 
-import org.apache.texera.amber.core.WorkflowRuntimeException
-
-class BreakpointException extends WorkflowRuntimeException("breakpoint triggered") {}
+module.exports = {
+  detect: () => null,
+};
+module.exports.default = module.exports;
