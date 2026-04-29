@@ -22,10 +22,19 @@ services:
     volumes:
       - .:/liquibase/sql
       - ./changelog.xml:/liquibase/changelog.xml
-    # NOTE: The username/password below must match your postgres settings in storage.conf. Update them here if you changed them.
-    # Format: --username=<your-username> --password=<your-password>
-    command: --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml update
-
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /tmp/sql/updates
+        for f in $(ls /liquibase/sql/updates/*.sql) 
+        do
+          sed 's/^\\c.*//g;/^SET search_path/d' "$$f" > /tmp/sql/updates/$(basename "$$f")
+        done
+        cp /liquibase/changelog.xml /tmp/changelog.xml
+        liquibase --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml clearCheckSums
+        liquibase --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml --search-path=/tmp update
+      # NOTE: The usernames/passwords above must match your postgres settings in storage.conf. Update them here if you changed them.
+      # Format: --username=<your-username> --password=<your-password>
   codegen:
     image: sbtscala/scala-sbt:eclipse-temurin-17.0.15_6_1.12.9_2.13.18
     depends_on:
