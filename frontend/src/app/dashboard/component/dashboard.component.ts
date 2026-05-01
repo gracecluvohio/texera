@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from "@angular/core";
+import { Component, NgZone, OnInit, ViewChild } from "@angular/core";
 import { UserService } from "../../common/service/user/user.service";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { FlarumService } from "../service/user/flarum/flarum.service";
@@ -94,7 +94,6 @@ export class DashboardComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private flarumService: FlarumService,
-    private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
     private socialAuthService: SocialAuthService,
     private route: ActivatedRoute,
@@ -124,7 +123,6 @@ export class DashboardComponent implements OnInit {
           this.isLogin = this.userService.isLogin();
           this.isAdmin = this.userService.isAdmin();
           this.forumLogin();
-          this.cdr.detectChanges();
         });
       });
 
@@ -172,7 +170,9 @@ export class DashboardComponent implements OnInit {
       this.adminSettingsService
         .getSetting(tab)
         .pipe(untilDestroyed(this))
-        .subscribe(value => (this.sidebarTabs[tab] = value === "true"));
+        .subscribe(value => {
+          this.sidebarTabs[tab] = value === "true";
+        });
     });
   }
 
