@@ -39,6 +39,7 @@ import {
   getJvmMemorySliderConfig,
 } from "../../../../common/util/computing-unit.util";
 import { ComputingUnitActionsService } from "../../../../common/service/computing-unit/computing-unit-actions/computing-unit-actions.service";
+import { interval } from "rxjs";
 
 @UntilDestroy()
 @Component({
@@ -144,6 +145,13 @@ export class UserComputingUnitComponent implements OnInit {
       .subscribe(units => {
         this.allComputingUnits = units;
         this.entries = units.map(u => new DashboardEntry(u));
+      });
+
+    interval(1000)
+      .pipe(untilDestroyed(this))
+      .subscribe(() => {
+        console.log("refreshing...");
+        this.computingUnitStatusService.refreshComputingUnitList();
       });
   }
 
