@@ -42,9 +42,9 @@ services:
         condition: service_completed_successfully
     working_dir: /texera
     volumes:
-      - ${PWD}/..:/texera
-      - ~/.ivy2:/root/.ivy2
-      - ~/.sbt:/root/.sbt
+      - ../:/texera
+      - ${HOME}/.ivy2:/root/.ivy2
+      - ${HOME}/.sbt:/root/.sbt
     environment:
       STORAGE_JDBC_URL: "jdbc:postgresql://host.docker.internal:5432/texera_db?currentSchema=texera_db,public"
     command: sbt jooqGenerate
