@@ -150,7 +150,6 @@ export class UserComputingUnitComponent implements OnInit {
     interval(1000)
       .pipe(untilDestroyed(this))
       .subscribe(() => {
-        console.log("refreshing...");
         this.computingUnitStatusService.refreshComputingUnitList();
       });
   }
