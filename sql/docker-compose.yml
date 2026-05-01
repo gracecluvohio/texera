@@ -31,7 +31,6 @@ services:
           sed 's/^\\c.*//g;/^SET search_path/d' "$$f" > /tmp/sql/updates/$(basename "$$f")
         done
         cp /liquibase/changelog.xml /tmp/changelog.xml
-        liquibase --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml clearCheckSums
         liquibase --url=jdbc:postgresql://host.docker.internal:5432/texera_db --username=postgres --password=postgres --changeLogFile=changelog.xml --search-path=/tmp update
       # NOTE: The usernames/passwords above must match your postgres settings in storage.conf. Update them here if you changed them.
       # Format: --username=<your-username> --password=<your-password>
