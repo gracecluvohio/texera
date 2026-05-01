@@ -26,7 +26,7 @@ services:
     command:
       - |
         mkdir -p /tmp/sql/updates
-        for f in $(ls /liquibase/sql/updates/*.sql) 
+        for f in /liquibase/sql/updates/*.sql
         do
           sed 's/^\\c.*//g;/^SET search_path/d' "$$f" > /tmp/sql/updates/$(basename "$$f")
         done
