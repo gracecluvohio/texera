@@ -156,7 +156,14 @@ jobs:
               greenTargets = requestedTargets.filter((target) => {
                 const prefix = `backport (${target}) / `;
                 const targetJobs = allJobs.filter((job) => job.name.startsWith(prefix));
-                return targetJobs.length > 0 && targetJobs.every((job) => job.conclusion === "success");
+                // Treat skipped as green: precheck legitimately skips stacks
+                // based on PR labels, matching the Required Checks aggregator.
+                return (
+                  targetJobs.length > 0 &&
+                  targetJobs.every(
+                    (job) => job.conclusion === "success" || job.conclusion === "skipped"
+                  )
+                );
               });
             }
 
@@ -182,6 +189,11 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          # Use AUTO_MERGE_TOKEN (fine-grained PAT) so the push to the release
+          # branch retriggers workflows on that branch. GITHUB_TOKEN-authored
+          # pushes are excluded from triggering downstream workflows, which
+          # silences post-merge CI on backport commits.
+          token: ${{ secrets.AUTO_MERGE_TOKEN || secrets.GITHUB_TOKEN }}
       - name: Cherry-pick merge commit onto target branch
         env:
           MERGE_SHA: ${{ github.sha }}
