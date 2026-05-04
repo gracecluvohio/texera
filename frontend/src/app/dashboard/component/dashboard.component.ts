@@ -74,6 +74,7 @@ export class DashboardComponent implements OnInit {
     projects_enabled: false,
     workflows_enabled: false,
     datasets_enabled: false,
+    compute_enabled: false,
     quota_enabled: false,
     forum_enabled: false,
     about_enabled: false,
