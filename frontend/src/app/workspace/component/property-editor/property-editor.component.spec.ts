@@ -18,8 +18,7 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { PropertyEditorComponent } from "./property-editor.component";
 import {
   mockPoint,
@@ -40,16 +39,9 @@ describe("PropertyEditorComponent", () => {
   let fixture: ComponentFixture<PropertyEditorComponent>;
   let workflowActionService: WorkflowActionService;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.overrideComponent(PropertyEditorComponent, {
-      set: {
-        template: '<div id="right-container"><div #contentWrapper></div></div>',
-      },
-    });
-
-    TestBed.configureTestingModule({
-      declarations: [PropertyEditorComponent],
-      imports: [CommonModule, HttpClientTestingModule],
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PropertyEditorComponent, CommonModule, HttpClientTestingModule],
       providers: [
         {
           provide: OperatorMetadataService,
@@ -58,9 +50,8 @@ describe("PropertyEditorComponent", () => {
         { provide: ComputingUnitStatusService, useClass: MockComputingUnitStatusService },
         ...commonTestProviders,
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PropertyEditorComponent);

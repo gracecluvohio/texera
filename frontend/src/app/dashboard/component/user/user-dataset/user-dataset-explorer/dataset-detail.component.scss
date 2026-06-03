@@ -286,3 +286,50 @@ nz-select {
   padding-top: 10px;
   border-top: 1px solid #eee;
 }
+
+.file-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.file-title-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.copy-path-btn {
+  padding: 0 4px;
+  height: auto;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dataset-header {
+  display: flex;
+  gap: 24px;
+}
+
+.dataset-header-meta {
+  flex: 1;
+}
+
+.dataset-cover-image {
+  width: 280px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 80px;
+}

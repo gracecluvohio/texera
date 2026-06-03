@@ -20,22 +20,24 @@
 package org.apache.texera.auth
 
 import com.typesafe.scalalogging.LazyLogging
-import jakarta.ws.rs.container.{ContainerRequestContext, ContainerRequestFilter, ResourceInfo}
-import jakarta.ws.rs.core.{Context, HttpHeaders, SecurityContext}
+import jakarta.annotation.Priority
+import jakarta.ws.rs.Priorities
+import jakarta.ws.rs.container.{ContainerRequestContext, ContainerRequestFilter}
+import jakarta.ws.rs.core.{HttpHeaders, SecurityContext}
 import jakarta.ws.rs.ext.Provider
-import org.apache.texera.dao.SqlServer
-import org.apache.texera.dao.jooq.generated.Tables.USER_LAST_ACTIVE_TIME
 import org.apache.texera.dao.jooq.generated.enums.UserRoleEnum
 
 import java.security.Principal
-import java.time.OffsetDateTime
 
+// Must run before Jersey's RolesAllowedRequestFilter (which sits at
+// Priorities.AUTHORIZATION = 2000). Without an explicit @Priority, this
+// filter defaults to Priorities.USER (5000) and would run *after* the
+// role check, so a request bearing a valid JWT would still be rejected
+// because the SecurityContext hasn't been populated yet. Pinning to
+// AUTHENTICATION (1000) restores the standard auth → authz ordering.
 @Provider
+@Priority(Priorities.AUTHENTICATION)
 class JwtAuthFilter extends ContainerRequestFilter with LazyLogging {
-
-  @Context
-  private var resourceInfo: ResourceInfo = _
-  private def ctx = SqlServer.getInstance().createDSLContext()
 
   override def filter(requestContext: ContainerRequestContext): Unit = {
     val authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION)
@@ -46,16 +48,6 @@ class JwtAuthFilter extends ContainerRequestFilter with LazyLogging {
 
       if (userOpt.isPresent) {
         val user = userOpt.get()
-
-        ctx
-          .insertInto(USER_LAST_ACTIVE_TIME)
-          .set(USER_LAST_ACTIVE_TIME.UID, user.getUid)
-          .set(USER_LAST_ACTIVE_TIME.LAST_ACTIVE_TIME, OffsetDateTime.now())
-          .onConflict(USER_LAST_ACTIVE_TIME.UID) // conflict on primary key uid
-          .doUpdate()
-          .set(USER_LAST_ACTIVE_TIME.LAST_ACTIVE_TIME, OffsetDateTime.now())
-          .execute()
-
         requestContext.setSecurityContext(new SecurityContext {
           override def getUserPrincipal: Principal = user
           override def isUserInRole(role: String): Boolean =

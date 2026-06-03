@@ -22,7 +22,7 @@ import { OperatorMetadataService } from "../operator-metadata/operator-metadata.
 import { StubOperatorMetadataService } from "../operator-metadata/stub-operator-metadata.service";
 
 import { OperatorMenuService } from "./operator-menu.service";
-import { HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { ComputingUnitStatusService } from "../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
 import { MockComputingUnitStatusService } from "../../../common/service/computing-unit/computing-unit-status/mock-computing-unit-status.service";
 import { commonTestProviders } from "../../../common/testing/test-utils";
@@ -50,7 +50,7 @@ describe("OperatorMenuService", () => {
         { provide: ComputingUnitStatusService, useClass: MockComputingUnitStatusService },
         ...commonTestProviders,
       ],
-      imports: [HttpClientModule],
+      imports: [HttpClientTestingModule],
     });
     workflowActionService = TestBed.inject(WorkflowActionService);
     service = TestBed.inject(OperatorMenuService);
@@ -116,8 +116,8 @@ describe("OperatorMenuService", () => {
       workflowActionService.addOperator(mockScanPredicate, mockPoint);
       workflowActionService.getJointGraphWrapper().highlightOperators(mockScanPredicate.operatorID);
 
-      expect(service.isDisableOperatorClickable).toBeTrue();
-      expect(service.isDisableOperator).toBeTrue();
+      expect(service.isDisableOperatorClickable).toBe(true);
+      expect(service.isDisableOperator).toBe(true);
     });
 
     it("flips isDisableOperator to enable after the operator is disabled", () => {
@@ -126,7 +126,7 @@ describe("OperatorMenuService", () => {
       workflowActionService.disableOperators([mockScanPredicate.operatorID]);
 
       // all highlighted operators are now disabled, so clicking should re-enable them.
-      expect(service.isDisableOperator).toBeFalse();
+      expect(service.isDisableOperator).toBe(false);
     });
 
     it("excludes sinks from view-result targets", () => {
@@ -143,26 +143,26 @@ describe("OperatorMenuService", () => {
 
       // highlighting only a sink: view-result should not be clickable.
       wrapper.highlightOperators(mockResultPredicate.operatorID);
-      expect(service.isToViewResultClickable).toBeFalse();
-      expect(service.isReuseResultClickable).toBeFalse();
+      expect(service.isToViewResultClickable).toBe(false);
+      expect(service.isReuseResultClickable).toBe(false);
 
       // highlighting only a non-sink: view-result becomes clickable.
       wrapper.unhighlightOperators(mockResultPredicate.operatorID);
       wrapper.highlightOperators(mockScanPredicate.operatorID);
-      expect(service.isToViewResultClickable).toBeTrue();
-      expect(service.isReuseResultClickable).toBeTrue();
+      expect(service.isToViewResultClickable).toBe(true);
+      expect(service.isReuseResultClickable).toBe(true);
     });
 
     it("recomputes when modification-enabled stream fires without a highlight change", () => {
       workflowActionService.addOperator(mockScanPredicate, mockPoint);
       workflowActionService.getJointGraphWrapper().highlightOperators(mockScanPredicate.operatorID);
-      expect(service.isDisableOperatorClickable).toBeTrue();
+      expect(service.isDisableOperatorClickable).toBe(true);
 
       workflowActionService.disableWorkflowModification();
-      expect(service.isDisableOperatorClickable).toBeFalse();
+      expect(service.isDisableOperatorClickable).toBe(false);
 
       workflowActionService.enableWorkflowModification();
-      expect(service.isDisableOperatorClickable).toBeTrue();
+      expect(service.isDisableOperatorClickable).toBe(true);
     });
 
     it("recomputes when view-result state of a highlighted non-sink operator changes", () => {
@@ -177,11 +177,11 @@ describe("OperatorMenuService", () => {
         .getJointGraphWrapper()
         .highlightOperators(mockScanPredicate.operatorID, mockSentimentPredicate.operatorID);
 
-      expect(service.isToViewResult).toBeTrue();
+      expect(service.isToViewResult).toBe(true);
 
       workflowActionService.setViewOperatorResults([mockScanPredicate.operatorID, mockSentimentPredicate.operatorID]);
       // both highlighted non-sinks are now viewing results → next click should toggle off.
-      expect(service.isToViewResult).toBeFalse();
+      expect(service.isToViewResult).toBe(false);
     });
   });
 });

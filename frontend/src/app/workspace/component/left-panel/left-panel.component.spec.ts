@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { LeftPanelComponent } from "./left-panel.component";
 import { mockPoint, mockScanPredicate } from "../../service/workflow-graph/model/mock-workflow-data";
@@ -36,14 +35,8 @@ describe("LeftPanelComponent", () => {
   let fixture: ComponentFixture<LeftPanelComponent>;
 
   beforeEach(async () => {
-    TestBed.overrideComponent(LeftPanelComponent, {
-      set: {
-        template: '<div id="left-container"><div #content></div></div>',
-      },
-    });
-
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([])],
+      imports: [LeftPanelComponent, HttpClientTestingModule, RouterTestingModule.withRoutes([])],
       providers: [
         {
           provide: OperatorMetadataService,
@@ -51,19 +44,15 @@ describe("LeftPanelComponent", () => {
         },
         ...commonTestProviders,
       ],
-      declarations: [LeftPanelComponent],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 
-  beforeEach(fakeAsync(() => {
+  beforeEach(() => {
     fixture = TestBed.createComponent(LeftPanelComponent);
     component = fixture.componentInstance;
     workflowActionService = TestBed.inject(WorkflowActionService);
     fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-  }));
+  });
 
   it("should create", () => {
     expect(component).toBeTruthy();

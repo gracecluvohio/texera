@@ -17,8 +17,7 @@
  * under the License.
  */
 
-import { NO_ERRORS_SCHEMA } from "@angular/core";
-import { ComponentFixture, inject, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, inject, TestBed } from "@angular/core/testing";
 import { AdminUserComponent } from "./admin-user.component";
 import { UserService } from "../../../../common/service/user/user.service";
 import { StubUserService } from "../../../../common/service/user/stub-user.service";
@@ -33,14 +32,12 @@ describe("AdminUserComponent", () => {
   let component: AdminUserComponent;
   let fixture: ComponentFixture<AdminUserComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [AdminUserComponent],
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       providers: [{ provide: UserService, useClass: StubUserService }, AdminUserService, ...commonTestProviders],
-      imports: [FormsModule, HttpClientTestingModule, NzDropDownModule, NzModalModule],
-      schemas: [NO_ERRORS_SCHEMA],
+      imports: [AdminUserComponent, FormsModule, HttpClientTestingModule, NzDropDownModule, NzModalModule],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AdminUserComponent);

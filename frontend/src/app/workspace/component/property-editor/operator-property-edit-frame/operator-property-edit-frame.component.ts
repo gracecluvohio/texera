@@ -21,8 +21,8 @@ import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, Simp
 import { ExecuteWorkflowService } from "../../../service/execute-workflow/execute-workflow.service";
 import { WorkflowStatusService } from "../../../service/workflow-status/workflow-status.service";
 import { Subject } from "rxjs";
-import { AbstractControl, FormGroup } from "@angular/forms";
-import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
+import { AbstractControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormlyFieldConfig, FormlyFormOptions, FormlyModule } from "@ngx-formly/core";
 import Ajv from "ajv";
 import { FormlyJsonschema } from "@ngx-formly/core/json-schema";
 import { WorkflowActionService } from "../../../service/workflow-graph/model/workflow-action.service";
@@ -45,7 +45,10 @@ import {
   setChildTypeDependency,
   setHideExpression,
 } from "src/app/common/formly/formly-utils";
-import { TYPE_CASTING_OPERATOR_TYPE } from "../typecasting-display/type-casting-display.component";
+import {
+  TYPE_CASTING_OPERATOR_TYPE,
+  TypeCastingDisplayComponent,
+} from "../typecasting-display/type-casting-display.component";
 import { UntilDestroy, untilDestroyed } from "@ngneat/until-destroy";
 import { filter } from "rxjs/operators";
 import { NotificationService } from "../../../../common/service/notification/notification.service";
@@ -58,6 +61,19 @@ import * as Y from "yjs";
 import { OperatorSchema } from "src/app/workspace/types/operator-schema.interface";
 import { AttributeType, PortSchema } from "../../../types/workflow-compiling.interface";
 import { GuiConfigService } from "../../../../common/service/gui-config.service";
+import { NgIf } from "@angular/common";
+import { NzSpaceCompactItemDirective } from "ng-zorro-antd/space";
+import { NzButtonComponent } from "ng-zorro-antd/button";
+import { ɵNzTransitionPatchDirective } from "ng-zorro-antd/core/transition-patch";
+import { NzTooltipDirective } from "ng-zorro-antd/tooltip";
+import { NzIconDirective } from "ng-zorro-antd/icon";
+import { NzPopoverDirective } from "ng-zorro-antd/popover";
+import { NzFormDirective } from "ng-zorro-antd/form";
+import { NzWaveDirective } from "ng-zorro-antd/core/wave";
+import { WorkflowPveService } from "../../../service/virtual-environment/virtual-environment.service";
+import { ComputingUnitStatusService } from "../../../../common/service/computing-unit/computing-unit-status/computing-unit-status.service";
+import { of } from "rxjs";
+import { map, switchMap, take } from "rxjs/operators";
 
 Quill.register("modules/cursors", QuillCursors);
 
@@ -82,7 +98,21 @@ Quill.register("modules/cursors", QuillCursors);
   selector: "texera-formly-form-frame",
   templateUrl: "./operator-property-edit-frame.component.html",
   styleUrls: ["./operator-property-edit-frame.component.scss"],
-  standalone: false,
+  imports: [
+    NgIf,
+    NzSpaceCompactItemDirective,
+    NzButtonComponent,
+    ɵNzTransitionPatchDirective,
+    NzTooltipDirective,
+    NzIconDirective,
+    NzPopoverDirective,
+    FormsModule,
+    NzFormDirective,
+    ReactiveFormsModule,
+    FormlyModule,
+    TypeCastingDisplayComponent,
+    NzWaveDirective,
+  ],
 })
 export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentOperatorId?: string;
@@ -147,8 +177,32 @@ export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, On
     private changeDetectorRef: ChangeDetectorRef,
     private workflowVersionService: WorkflowVersionService,
     private workflowStatusSerivce: WorkflowStatusService,
-    private config: GuiConfigService
+    private config: GuiConfigService,
+    private workflowPveService: WorkflowPveService,
+    private computingUnitStatusService: ComputingUnitStatusService
   ) {}
+
+  private patchPythonUdfEnvironmentSchema(schema: CustomJSONSchema7, environments: string[]): CustomJSONSchema7 {
+    const patchedSchema = cloneDeep(schema);
+
+    if (patchedSchema.properties && typeof patchedSchema.properties !== "boolean") {
+      const envProperty = patchedSchema.properties["envName"] as CustomJSONSchema7;
+      envProperty.enum = environments;
+    }
+
+    return patchedSchema;
+  }
+
+  private hideEnvNameWhenDefaultEnvChecked(): void {
+    const envField = this.formlyFields?.[0]?.fieldGroup?.find(f => f.key === "envName");
+    if (envField) {
+      envField.expressions = {
+        ...envField.expressions,
+        hide: "!!field.parent.model.defaultEnv",
+        "props.required": "!field.parent.model.defaultEnv",
+      };
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.currentOperatorId = changes.currentOperatorId?.currentValue;
@@ -222,6 +276,49 @@ export class OperatorPropertyEditFrameComponent implements OnInit, OnChanges, On
      * Prevent the form directly changes the value in the texera graph without going through workflow action service.
      */
     this.formData = cloneDeep(operator.operatorProperties);
+
+    const isPythonUdf =
+      this.currentOperatorSchema.operatorType === "PythonUDFV2" ||
+      this.currentOperatorSchema.operatorType === "DualInputPortsPythonUDFV2" ||
+      this.currentOperatorSchema.operatorType === "PythonUDFSourceV2";
+    if (isPythonUdf && this.formData.defaultEnv === undefined) {
+      this.formData.defaultEnv = true;
+    }
+
+    const baseSchema = cloneDeep(this.currentOperatorSchema.jsonSchema);
+
+    if (isPythonUdf) {
+      this.computingUnitStatusService
+        .getSelectedComputingUnit()
+        .pipe(
+          take(1),
+          switchMap(unit => {
+            const cuid = unit?.computingUnit?.cuid;
+            return cuid !== undefined
+              ? this.workflowPveService.fetchPVEs(cuid).pipe(map(pves => pves.map(p => p.pveName)))
+              : of<string[]>([]);
+          }),
+          untilDestroyed(this)
+        )
+        .subscribe({
+          next: (environments: string[]) => {
+            const patchedSchema = this.patchPythonUdfEnvironmentSchema(baseSchema, environments);
+            this.setFormlyFormBinding(patchedSchema);
+            this.hideEnvNameWhenDefaultEnvChecked();
+          },
+          error: (err: unknown) => {
+            console.error("Failed to load Python virtual environments:", err);
+            this.notificationService.error(
+              `Could not load Python virtual environments: ${err instanceof Error ? err.message : String(err)}`
+            );
+            const patchedSchema = this.patchPythonUdfEnvironmentSchema(baseSchema, []);
+            this.setFormlyFormBinding(patchedSchema);
+            this.hideEnvNameWhenDefaultEnvChecked();
+          },
+        });
+    } else {
+      this.setFormlyFormBinding(baseSchema);
+    }
 
     // use ajv to initialize the default value to data according to schema, see https://ajv.js.org/#assigning-defaults
     // WorkflowUtil service also makes sure that the default values are filled in when operator is added from the UI
